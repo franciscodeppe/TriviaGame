@@ -4,10 +4,11 @@ var questionN = 0
 var answerN = 0
 var choicesN = 0
 var coverN = 0
-var correctGif = 0
-var incorrectGif = 0
-var intervalID;
+var gifN = 0
+var intervalOne;
+var intervalTwo;
 var time;
+var timeTwo;
 var game = {
     answer: ["Con-Air", "Gone in 60 Seconds", "National Treasue", "Face/Off/", "Fast Times at Ridgemont High"],
     choices: [
@@ -22,23 +23,27 @@ var game = {
         "https://media.giphy.com/media/boLYZgaKNOy0U/giphy.gif"
     ],
     correctGif: ["https://media.giphy.com/media/bn0zlGb4LOyo8/giphy.gif",
-        "http://media.giphy.com/media/iELHADb11Yhmo/giphy.gif",
+        "https://media.giphy.com/media/Y8mYpYWkIYDao/giphy.gif",
         "http://media.giphy.com/media/tPLEgK2pDgFgI/giphy.gif",
-        "https://media.giphy.com/media/3YGKFfw611fZS/giphy.gif",
+        "http://media.giphy.com/media/iELHADb11Yhmo/giphy.gif",
         "https://media.giphy.com/media/RrVzUOXldFe8M/giphy.gif",
     ],
-    incorrectGif: ["https://media.giphy.com/media/RF0qU7VHLyPRu/giphy.gif",
-        "https://media.giphy.com/media/Y8mYpYWkIYDao/giphy.gif",
-        "https://giphy.com/gifs/blue-nicolas-bolts-Za3FFB6aXVAnS",
+    incorrectGif: ["https://media.giphy.com/media/Jmx29HtisvVV6/giphy.gif",
+        "https://media.giphy.com/media/Za3FFB6aXVAnS/giphy.gif",
         "https://media.giphy.com/media/EoFeaQrOOUn3a/giphy.gif",
-        "https://media.giphy.com/media/xyYouRSr7MAbS/giphy.gif"
-    ],
+        "https://media.giphy.com/media/xyYouRSr7MAbS/giphy.gif",
+		"https://media.giphy.com/media/10uct1aSFT7QiY/giphy.gif",
+    ]
 }
+
+$("#cover").attr("src", game.cover[coverN])
+$("#gifs").hide()
 
 
 function timer() {
-    time = 16
-    intervalId = setInterval(count, 1000);
+    time = 15
+    $("#time_remaining").html("<h2>" + time + "</h2>")
+    intervalOne = setInterval(count, 1000);
 }
 
 function count() {
@@ -46,31 +51,60 @@ function count() {
     $("#time_remaining").html("<h2>" + time + "</h2>");
     if (time === 0) {
         incorrect++
-        incorrectGif++
-        value()
+        $("#gifs").attr("src", game.incorrectGif[gifN])
+        gifN++
         reset()
-        updateGame()
-        inBetween()
+        timerTwo()
     }
-
-    function reset() {
-        clearInterval(intervalId)
-    }
-
-    function inBetween() {
-
-    }
-
 }
-$("img").attr("src", game.cover[coverN])
+
+function timerTwo() {
+	timeTwo = 3;
+	$("#gifs").show()
+	hideAll()
+    intervalTwo = setInterval(countTwo, 1000);
+}
+function countTwo() {
+    timeTwo--
+    if (timeTwo === 0) {
+		gifN++
+		stop();
+		reset()
+		showAll()
+		value()
+		updateGame()
+        $("#gifs").hide()
+
+
+    }
+}
+function reset() {
+	clearInterval(intervalOne)
+}
+function stop() {
+	clearInterval(intervalTwo)
+}
+
+function hideAll() {
+	$("#gameboard").hide()
+    $("#time_remaining").hide()
+    $("#question").hide()
+    $("#choices").hide()
+}
+function showAll() {
+	$("#gameboard").show()
+	$("#time_remaining").show()
+	$("#question").show()
+	$("#choices").show()
+}
+
+
 $("#start-button").on('click', function() {
     runGame()
     $("#start-button").hide()
     $("#cover").hide()
 
 })
-
-
 
 function runGame() {
     $("#question").html("<h2>" + game.questions[questionN] + "</h2>")
@@ -88,7 +122,8 @@ function runGame() {
             game.choices[choicesN][i] = temp;
         }
     }
-    timer()
+	shuffle()
+	timer()
     gameClick()
 }
 
@@ -100,7 +135,7 @@ function updateGame() {
         runGame()
     } else {
         coverN++
-        $("img").attr("src", game.cover[coverN])
+        $("#cover").attr("src", game.cover[coverN])
 
         $("#gameboard").html(
             "<h2>Correct: " + correct + "</h2>" + "<br>" +
@@ -108,8 +143,9 @@ function updateGame() {
             "<button>" + "Play Again!" + "</button"
         )
         $("#time_remaining").hide()
-        $("#question").text("")
-        $("#choices").text("")
+		$("#time_remaining").hide()
+	    $("#question").hide()
+	    $("#choices").hide()
         $("#cover").show()
         $("button").on("click", function() {
             $("#gameboard").html("")
@@ -119,7 +155,11 @@ function updateGame() {
             answerN = 0
             choicesN = 0
             coverN = 0
+			$("#start-button").hide()
+		    $("#cover").hide()
             runGame()
+
+
         });
     }
 }
@@ -136,16 +176,12 @@ function gameClick() {
         var select = $(this).text();
         if ((game.answer[answerN]).indexOf(select) > -1) {
             correct++
-            correctGif++
-            time = 16
-            value()
-            updateGame()
+			$("#gifs").attr("src", game.correctGif[gifN])
+            timerTwo()
         } else {
             incorrect++
-            incorrectGif++
-            value()
-            updateGame()
-
+            $("#gifs").attr("src", game.incorrectGif[gifN])
+            timerTwo()
         }
     })
 }
