@@ -49,7 +49,7 @@ function timer() {
 function count() {
     time--;
     $("#time_remaining").html("<h2>" + time + "</h2>");
-    if (time === 0) {
+    if (time < 0) {
         incorrect++
         $("#gifs").attr("src", game.incorrectGif[gifN])
         gifN++
@@ -62,12 +62,11 @@ function timerTwo() {
 	timeTwo = 3;
 	$("#gifs").show()
 	hideAll()
-    intervalTwo = setInterval(countTwo, 1000);
+    intervalTwo = setInterval(countTwo, 500);
 }
 function countTwo() {
     timeTwo--
-    if (timeTwo === 0) {
-		gifN++
+    if (timeTwo < 0) {
 		stop();
 		reset()
 		showAll()
@@ -86,13 +85,11 @@ function stop() {
 }
 
 function hideAll() {
-	$("#gameboard").hide()
     $("#time_remaining").hide()
     $("#question").hide()
     $("#choices").hide()
 }
 function showAll() {
-	$("#gameboard").show()
 	$("#time_remaining").show()
 	$("#question").show()
 	$("#choices").show()
@@ -107,6 +104,7 @@ $("#start-button").on('click', function() {
 })
 
 function runGame() {
+
     $("#question").html("<h2>" + game.questions[questionN] + "</h2>")
 
 
@@ -136,28 +134,27 @@ function updateGame() {
     } else {
         coverN++
         $("#cover").attr("src", game.cover[coverN])
-
+		$("#cover").show()
         $("#gameboard").html(
             "<h2>Correct: " + correct + "</h2>" + "<br>" +
             "<h2>Incorrect: " + incorrect + "</h2>" + "<br>" +
             "<button>" + "Play Again!" + "</button"
         )
-        $("#time_remaining").hide()
-		$("#time_remaining").hide()
-	    $("#question").hide()
-	    $("#choices").hide()
-        $("#cover").show()
+		hideAll()
         $("button").on("click", function() {
-            $("#gameboard").html("")
-            correct = 0
+			console.log("done")
+			showAll()
+			$("#gameboard").html("")
+			correct = 0
             incorrect = 0
             questionN = 0
             answerN = 0
             choicesN = 0
             coverN = 0
-			$("#start-button").hide()
+			gifN = 0
 		    $("#cover").hide()
-            runGame()
+			runGame()
+			updateGame()
 
 
         });
@@ -177,10 +174,12 @@ function gameClick() {
         if ((game.answer[answerN]).indexOf(select) > -1) {
             correct++
 			$("#gifs").attr("src", game.correctGif[gifN])
+			gifN++
             timerTwo()
         } else {
             incorrect++
             $("#gifs").attr("src", game.incorrectGif[gifN])
+			gifN++
             timerTwo()
         }
     })
